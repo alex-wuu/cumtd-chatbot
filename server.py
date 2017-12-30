@@ -9,6 +9,7 @@ app = Flask(__name__)
 PAGE_ACCESS_TOKEN = os.getenv('PAGE_ACCESS_TOKEN')
 VERIFICATION_TOKEN = os.getenv('VERIFICATION_TOKEN')
 CUMTD_KEY = os.getenv('CUMTD_KEY')
+BASE_URL = os.getenv('BASE_URL')
 
 class handlerAPI(MethodView):
 
@@ -33,13 +34,14 @@ class handlerAPI(MethodView):
 					try:
 						sender_id = messaging_event['sender']['id']
 						recipient_id = messaging_event['recipient']['id'] # not needed
-						stop_id, stop_name = responder.get_stop_id(CUMTD_KEY, messaging_event['message']['text'])
-						print('{0}: {1}'.format(stop_id, stop_name))
+						stop_id, stop_name = responder.get_stop_id(CUMTD_KEY, BASE_URL, messaging_event['message']['text'])
 						if stop_id != '':
-							departures = responder.get_departures(CUMTD_KEY, stop_id)
+							print('{0}: {1}'.format(stop_id, stop_name))
+							departures = responder.get_departures(CUMTD_KEY, BASE_URL, stop_id)
 							message_text = responder.departures_text(stop_name, departures)
 						else:
 							message_text = stop_name
+						print(message_text)
 						responder.message_response(PAGE_ACCESS_TOKEN, sender_id, message_text)
 					except:
 						pass
