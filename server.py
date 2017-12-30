@@ -30,13 +30,19 @@ class handlerAPI(MethodView):
 		if payload['object'] == 'page':
 			for entry in payload['entry']:
 				for messaging_event in entry['messaging']:
-					if 'message' in messaging_event:
-						if 'text' in messaging_event['message']:
-							sender_id = messaging_event['sender']['id']
-							recipient_id = messaging_event['recipient']['id']
-							message_text = messaging_event['message']['text']
-							# message_text = responder.get_buses(CUMTD_KEY, messaging_event['message']['text'])
-							responder.message_response(PAGE_ACCESS_TOKEN, sender_id, message_text)
+					try:
+						sender_id = messaging_event['sender']['id']
+						recipient_id = messaging_event['recipient']['id'] # not needed
+						stop_id, stop_name = responder.get_stop_id(CUMTD_KEY, messaging_event['message']['text'])
+						print('{0}: {1}'.format(stop_id, stop_name))
+						if stop_id != '':
+							departures = responder.get_departures(CUMTD_KEY, stop_id)
+							message_text = responder.departures_text(stop_name, departures)
+						else:
+							message_text = stop_name
+						responder.message_response(PAGE_ACCESS_TOKEN, sender_id, message_text)
+					except:
+						pass
 		return 'ok', 200
 
 app.add_url_rule('/', view_func = handlerAPI.as_view('handler_api'))
