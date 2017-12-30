@@ -42,7 +42,7 @@ def departures_text(stop_name, departures):
 def get_stop_id(key, received_text):
 	'''Get buses by stop then returns the id and name of closest match'''
 	print('Finding bus stops')
-	stop_id_url = BASE_URL + '/{0}?key={1}?query={2}?count={3}'.format('getstopsbysearch', key, received_text, 3)
+	stop_id_url = BASE_URL + '/{0}?key={1}&query={2}&count={3}'.format('getstopsbysearch', key, received_text, 3)
 	r = requests.get(stop_id_url)
 	if r.status_code == 200:
 		match_ids = r.json()
@@ -59,7 +59,7 @@ def get_stop_id(key, received_text):
 def get_departures(key, stop_id):
 	'''Get json of departures by stop_id'''
 	print('Finding departures for bus stop')
-	departures_url = BASE_URL + '/{0}?key={1}?stop_id={2}'.format('getdeparturesbystop', key, stop_id)
+	departures_url = BASE_URL + '/{0}?key={1}&stop_id={2}'.format('getdeparturesbystop', key, stop_id)
 	r = requests.get(departures_url)
 	if r.status_code == 200:
 		return r.json()
