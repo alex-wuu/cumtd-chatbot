@@ -64,6 +64,7 @@ class handlerAPI(MethodView):
 		return 'ok', 200
 
 
+app.add_url_rule('/', view_func=handlerAPI.as_view('handler_api'))
+
 if __name__ == '__main__':
-	app.add_url_rule('/', view_func = handlerAPI.as_view('handler_api'))
 	app.run()
