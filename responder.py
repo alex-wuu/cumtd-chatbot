@@ -31,9 +31,11 @@ def departures_text(stop_name, departures):
 	print('Creating message with bus departures')
 	cur_time = iso8601.parse_date(departures['time'])
 	message_text = '{0} departures at {1}\n'.format(stop_name, cur_time.strftime('%I:%M %p'))
+	if len(departures['departures']) == 0:
+		message_text += '\nNo buses are currently scheduled :('
 	for bus_time in departures['departures']:
 		message_text += '\n{0} in {1} min'.format(bus_time['headsign'], bus_time['expected_mins'])
-	return message_text
+	return message_text.encode(encoding='utf-8')
 
 
 def get_stop_id(key, base_url, received_text):
@@ -50,7 +52,7 @@ def get_stop_id(key, base_url, received_text):
 		except IndexError:
 			return '', "Can't find a matching bus stop :("
 	else:
-		return '', "Can't find bus stop: Error {0}".format(r.status_code)
+		return '', "Can't find bus stops: Error {0}".format(r.status_code)
 
 
 def get_departures(key, base_url, stop_id):
@@ -66,4 +68,4 @@ def get_departures(key, base_url, stop_id):
 
 def get_cur_time():
 	'''Returns current time of day in minutes'''
-	return str(datetime.datetime.now().hour * 60 + datetime.datetime.now().minute)
+	return str(datetime.datetime.now().hour * 60 + datetime.datetime.now().minute).encode(encoding='utf-8')
