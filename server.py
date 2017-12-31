@@ -21,13 +21,16 @@ def check_redis(stop_id, stop_name):
 	cur_time = responder.get_cur_time()
 	if r.exists(stop_id):
 		if cur_time != r.lindex(stop_id, 0):
+			print('Updating redis: cur_time {0}, last update {1}'.format(cur_time, r.lindex(stop_id, 0)))
 			departures = responder.get_departures(CUMTD_KEY, BASE_URL, stop_id)
 			message_text = departures if type(departures) == str else responder.departures_text(stop_name, departures)
 			r.lset(stop_id, 0, cur_time)
 			r.lset(stop_id, 1, message_text)
 		else:
+			print('Already up-to-date')
 			message_text = r.lindex(stop_id, 1)
 	else:
+		print('Setting redis key')
 		departures = responder.get_departures(CUMTD_KEY, BASE_URL, stop_id)
 		message_text = departures if type(departures) == str else responder.departures_text(stop_name, departures)
 		r.lpush(stop_id, message_text)
