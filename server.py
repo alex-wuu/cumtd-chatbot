@@ -20,7 +20,7 @@ def check_redis(stop_id, stop_name):
 	r = redis.from_url(REDIS_URL)
 	cur_time = responder.get_cur_time()
 	if r.exists(stop_id):
-		if int(cur_time) - int(r.lindex(stop_id, 0)) > 60:
+		if int(cur_time) - int(r.lindex(stop_id, 0)) <= 60:
 			print('Already up-to-date')
 			message_text = r.lindex(stop_id, 1)
 		else:
