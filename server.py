@@ -19,13 +19,19 @@ def check_redis(stop_id, stop_name):
 	print('Checking redis for {0}: {1}'.format(stop_id, stop_name))
 	r = redis.from_url(REDIS_URL)
 	cur_time = responder.get_cur_time()
-	if cur_time != r.lindex(stop_id, 0):
+	if r.exists(stop_id):
+		if cur_time != r.lindex(stop_id, 0):
+			departures = responder.get_departures(CUMTD_KEY, BASE_URL, stop_id)
+			message_text = departures if type(departures) == str else responder.departures_text(stop_name, departures)
+			r.lset(stop_id, 0, cur_time)
+			r.lset(stop_id, 1, message_text)
+		else:
+			message_text = r.lindex(stop_id, 1)
+	else:
 		departures = responder.get_departures(CUMTD_KEY, BASE_URL, stop_id)
 		message_text = departures if type(departures) == str else responder.departures_text(stop_name, departures)
-		r.lset(stop_id, 0, cur_time)
-		r.lset(stop_id, 1, message_text)
-	else:
-		message_text = r.lindex(stop_id, 1)
+		r.lpush(stop_id, message_text)
+		r.lpush(stop_id, cur_time)
 	return message_text
 
 
