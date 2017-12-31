@@ -68,4 +68,5 @@ def get_departures(key, base_url, stop_id):
 
 def get_cur_time():
 	'''Returns current time of day in minutes'''
-	return str(datetime.datetime.now().hour * 60 + datetime.datetime.now().minute).encode(encoding='utf-8')
+	time_seconds = datetime.datetime.now().hour * 3600 + datetime.datetime.now().minute * 60 + datetime.datetime.now().second
+	return str(time_seconds).encode(encoding='utf-8')
