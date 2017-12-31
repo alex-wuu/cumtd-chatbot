@@ -1,10 +1,11 @@
-import json
-import requests
 import datetime
 import iso8601
+import json
+import requests
+
 
 def message_response(token, recipient_id, message_text):
-	'''Send message back to the sender'''
+	'''Sends message back to the original sender'''
 	params = {
 		"access_token": token
 	}
@@ -12,29 +13,31 @@ def message_response(token, recipient_id, message_text):
 		"Content-Type": "application/json"
 	}
 	data = json.dumps({
-		"recipient": { 
+		"recipient": {
 			"id": recipient_id
 		},
 		"message": {
 			"text": message_text
 		}
 	})
-	r = requests.post('https://graph.facebook.com/v2.11/me/messages', params = params, headers = headers, data = data)
+	r = requests.post('https://graph.facebook.com/v2.11/me/messages', params=params, headers=headers, data=data)
 	if r.status_code != 200:
 		print(r.status_code)
 		print(r.text)
+
 
 def departures_text(stop_name, departures):
 	'''Create message text containing bus departure times for a stop'''
 	print('Creating message with bus departures')
 	cur_time = iso8601.parse_date(departures['time'])
-	message_text = 'Bus departures for {0} at {1}:{2}\n'.format(stop_name, cur_time.hour, cur_time.minute)
+	message_text = '{0} departures at {1}\n'.format(stop_name, cur_time.strftime('%I:%M %p'))
 	for bus_time in departures['departures']:
 		message_text += '\n{0} in {1} min'.format(bus_time['headsign'], bus_time['expected_mins'])
 	return message_text
 
+
 def get_stop_id(key, base_url, received_text):
-	'''Get buses by stop then returns the id and name of closest match'''
+	'''Search based on received text, then returns the stop_id and stop_name of closest match'''
 	print('Finding bus stops')
 	stop_id_url = base_url + '/{0}?key={1}&query={2}&count={3}'.format('getstopsbysearch', key, received_text, 3)
 	r = requests.get(stop_id_url)
@@ -43,11 +46,12 @@ def get_stop_id(key, base_url, received_text):
 		try:
 			stop_id = match_ids['stops'][0]['stop_id']
 			stop_name = match_ids['stops'][0]['stop_name']
-			return stop_id, stop_name 
-		except:
+			return stop_id, stop_name
+		except IndexError:
 			return '', "Can't find a matching bus stop :("
 	else:
 		return '', "Can't find bus stop: Error {0}".format(r.status_code)
+
 
 def get_departures(key, base_url, stop_id):
 	'''Get json of departures by stop_id'''
@@ -58,3 +62,8 @@ def get_departures(key, base_url, stop_id):
 		return r.json()
 	else:
 		return "Can't get bus departures: Error {0}".format(r.status_code)
+
+
+def get_cur_time():
+	'''Returns current time of day in minutes'''
+	return datetime.datetime.now().hour * 60 + datetime.datetime.now().minute
