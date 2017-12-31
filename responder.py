@@ -31,6 +31,7 @@ def departures_text(stop_name, departures):
 	print('Creating message with bus departures')
 	cur_time = iso8601.parse_date(departures['time'])
 	message_text = '{0} departures at {1}\n'.format(stop_name, cur_time.strftime('%I:%M %p'))
+	message_text += 'Data provided by CUMTD\n'  # needed for CUMTD TOS
 	if len(departures['departures']) == 0:
 		message_text += '\nNo buses are currently scheduled :('
 	for bus_time in departures['departures']:
