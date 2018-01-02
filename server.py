@@ -20,7 +20,7 @@ def flush_redis():
     cur_time = int(r.time()[0])
     cur_day = cur_time - (cur_time % 86400) - 43200  # sets to 6 AM CST
     if r.exists('flush_time'):
-        if r.get('flush_time') != cur_day:
+        if cur_day != int(r.get('flush_time')):
             print('Flushing redis')
             r.flushdb()
             print('Setting last flush time to {0}'.format(cur_day))
