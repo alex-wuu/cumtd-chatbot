@@ -3,7 +3,7 @@ import redis
 
 def check_user(redis_url, sender_id):
     """
-    Check user requests from the past minute; limit to 4 per minute.
+    Check user requests from the past minute; limit to 5 per minute.
     If the limit is exceeded, return the remaining wait time.
     Otherwise, return 0.
     """
@@ -16,12 +16,12 @@ def check_user(redis_url, sender_id):
             r.lset(sender_id, 1, count)
         else:
             r.lset(sender_id, 0, cur_time)
-            r.lset(sender_id, 1, 1)
+            r.lset(sender_id, 1, 0)
         print('sender_id {0} has requested {1} time(s) in the past minute'.format(sender_id, count))
-        return 60 + count_time - cur_time if count >= 4 else 0
+        return 60 + count_time - cur_time if count >= 5 else 0
     else:
         print('Adding sender_id {0}'.format(sender_id))
-        r.lpush(sender_id, 1, cur_time)
+        r.lpush(sender_id, 0, cur_time)
         return 0
 
 
