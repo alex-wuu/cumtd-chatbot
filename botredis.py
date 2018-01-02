@@ -12,11 +12,10 @@ def check_user(redis_url, sender_id):
     if r.exists(sender_id):
         count_time = int(r.lindex(sender_id, 0))
         count = int(r.lindex(sender_id, 1)) + 1
-        if abs(cur_time - count_time) < 60:
-            r.lset(sender_id, 1, count)
-        else:
+        if abs(cur_time - count_time) >= 60:
+            count = 0
             r.lset(sender_id, 0, cur_time)
-            r.lset(sender_id, 1, 0)
+        r.lset(sender_id, 1, count)
         print('sender_id {0} has requested {1} time(s) in the past minute'.format(sender_id, count))
         return 60 + count_time - cur_time if count >= 5 else 0
     else:
@@ -59,5 +58,8 @@ def update_departures(redis_url, stop_id, message_text):
     print('Setting redis key')
     r = redis.from_url(redis_url)
     cur_time = int(r.time()[0])
-    r.lset(stop_id, 0, cur_time)
-    r.lset(stop_id, 1, message_text)
+    if r.exists(stop_id):
+        r.lset(stop_id, 0, cur_time)
+        r.lset(stop_id, 1, message_text)
+    else:
+        r.lpush(stop_id, message_text, cur_time)
