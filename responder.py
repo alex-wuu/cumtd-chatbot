@@ -3,28 +3,6 @@ import json
 import requests
 
 
-def message_response(token, recipient_id, message_text):
-    """Sends message back to the original sender"""
-    params = {
-        "access_token": token
-    }
-    headers = {
-        "Content-Type": "application/json"
-    }
-    data = json.dumps({
-        "recipient": {
-            "id": recipient_id
-        },
-        "message": {
-            "text": message_text
-        }
-    })
-    r = requests.post('https://graph.facebook.com/v2.11/me/messages', params=params, headers=headers, data=data)
-    if r.status_code != 200:
-        print(r.status_code)
-        print(r.text)
-
-
 def departures_text(stop_name, departures):
     """Create message text containing bus departure times for a stop"""
     print('Creating message with bus departures')
@@ -64,3 +42,25 @@ def get_departures(key, base_url, stop_id):
         return r.json()
     else:
         return "Can't get bus departures: Error {0}".format(r.status_code)
+
+
+def send_response(token, fb_url, recipient_id, message_text):
+    """Send message back to the original sender"""
+    params = {
+        "access_token": token
+    }
+    headers = {
+        "Content-Type": "application/json"
+    }
+    data = json.dumps({
+        "recipient": {
+            "id": recipient_id
+        },
+        "message": {
+            "text": message_text
+        }
+    })
+    r = requests.post(fb_url, params=params, headers=headers, data=data)
+    if r.status_code != 200:
+        print(r.status_code)
+        print(r.text)
