@@ -2,7 +2,7 @@ from flask import Flask, request
 from flask.views import MethodView
 
 import os
-import bot_redis
+import botredis
 import responder
 
 app = Flask(__name__)
@@ -19,11 +19,11 @@ def generate_response(messaging_event):
     """Return the user's ID and response text"""
     sender_id = messaging_event['sender']['id']
     received_text = messaging_event['message']['text']
-    remaining_time = bot_redis.check_user(REDIS_URL, sender_id)
+    remaining_time = botredis.check_user(REDIS_URL, sender_id)
     if remaining_time == 0:
         stop_id, stop_name = responder.get_stop_id(CUMTD_KEY, BASE_URL, received_text)
         if stop_id != '':
-            message_text = bot_redis.check_departures(REDIS_URL, stop_id)
+            message_text = botredis.check_departures(REDIS_URL, stop_id)
         else:
             message_text = stop_name
     else:
@@ -31,7 +31,7 @@ def generate_response(messaging_event):
     if message_text is False:
         departures = responder.get_departures(CUMTD_KEY, BASE_URL, stop_id)
         message_text = departures if type(departures) == str else responder.departures_text(stop_name, departures)
-        bot_redis.update_departures(REDIS_URL, stop_id, message_text)
+        botredis.update_departures(REDIS_URL, stop_id, message_text)
     return sender_id, message_text
 
 
@@ -55,7 +55,7 @@ class handlerAPI(MethodView):
         # Find the messages then respond to each
         if payload['object'] != 'page':
             return 'ok', 200
-        bot_redis.flush_redis(REDIS_URL)
+        botredis.flush_redis(REDIS_URL)
         for entry in payload['entry']:
             for messaging_event in entry['messaging']:
                 try:
