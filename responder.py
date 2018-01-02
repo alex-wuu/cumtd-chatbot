@@ -13,7 +13,7 @@ def departures_text(stop_name, departures):
         message_text += '\nNo buses are currently scheduled :('
     for bus_time in departures['departures']:
         message_text += '\n{0} in {1} min'.format(bus_time['headsign'], bus_time['expected_mins'])
-    return message_text.encode(encoding='utf-8')
+    return message_text
 
 
 def get_stop_id(key, base_url, received_text):
