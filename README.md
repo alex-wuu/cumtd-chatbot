@@ -1,4 +1,4 @@
-# Transit Chatbot
+# Champaign-Urbana Transit Chatbot
 
 A facebook chatbot for use with the [CUMTD developer API](https://developer.cumtd.com/) built with [Flask](https://github.com/pallets/flask). Gives incoming bus departures for a given bus stop searched by the user.
 
