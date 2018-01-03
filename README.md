@@ -33,7 +33,7 @@ $ source ./venv/bin/activate
 
 Install package dependencies with pip:
 ```
-$ pip install -r requirements.txt
+$ pip install -r ./app/requirements.txt
 ```
 
 Add environment variables. This can be done through your platform, e.g. Heroku, or through an additional config file. If you use a config file, then it needs to be imported in `server.py`.
@@ -54,6 +54,13 @@ $ heroku git:remote -a YOUR_HEROKU_APP_NAME
 
 Deploy the app with:
 ```
+$ git subtree push --prefix app heroku master
+```
+
+Or if you move all the files from the app subdirectory to the root directory, you can do:
+```
+$ git add .
+$ git commit -m "Moved files from subdirectory root directory"
 $ git push heroku master
 ```
 
