@@ -37,12 +37,12 @@ $ pip install -r ./app/requirements.txt
 ```
 
 Add environment variables. This can be done through your platform, e.g. Heroku, or through an additional config file. If you use a config file, then it needs to be imported in `server.py`.
--```PAGE_ACCESS_TOKEN``` is the page access token generated from your app's [Facebook developers page](https://developers.facebook.com/). See the [Deployment](#deployment) section for more information.
--```VERIFICATION_TOKEN``` is the "Verify Token" entered when a webhook is set up through your app's Facebook developers page. See the [Deployment](#deployment) section for more information.
--```CUMTD_KEY``` is your API key from [CUMTD](https://developer.cumtd.com/).
--```FB_URL``` is used as a starting point for requests with the [Facebook graph API](https://developers.facebook.com/docs/messenger-platform/send-messages/), e.g. ```https://graph.facebook.com/v2.11/me/messages```.
--```BASE_URL``` is used as a starting point for [requests with the CUMTD API](https://developer.cumtd.com/documentation/v2.2/requests/), format is ```https://developer.cumtd.com/api/{version}/{format}/{method}?key={api_key}```.
--```REDIS_URL``` is your Redis URL.
+- ```PAGE_ACCESS_TOKEN``` is the page access token generated from your app's [Facebook developers page](https://developers.facebook.com/). See the [Deployment](#deployment) section for more information.
+- ```VERIFICATION_TOKEN``` is the "Verify Token" entered when a webhook is set up through your app's Facebook developers page. See the [Deployment](#deployment) section for more information.
+- ```CUMTD_KEY``` is your API key from [CUMTD](https://developer.cumtd.com/).
+- ```FB_URL``` is used as a starting point for requests with the [Facebook graph API](https://developers.facebook.com/docs/messenger-platform/send-messages/), e.g. ```https://graph.facebook.com/v2.11/me/messages```.
+- ```BASE_URL``` is used as a starting point for [requests with the CUMTD API](https://developer.cumtd.com/documentation/v2.2/requests/) with the format ```https://developer.cumtd.com/api/{version}/{format}/{method}?key={api_key}```.
+- ```REDIS_URL``` is your Redis URL.
 
 Set up your Redis. The Heroku redis addon was used for creating the app.
 
@@ -57,7 +57,7 @@ Deploy the app with:
 $ git subtree push --prefix app heroku master
 ```
 
-Or if you move all the files from the app subdirectory to the root directory, you can do:
+Or if you move all the files from the app subdirectory to the root directory, then you can deploy this way:
 ```
 $ git add .
 $ git commit -m "Moved files from subdirectory root directory"
@@ -86,4 +86,4 @@ curl -X POST -H "Content-Type: application/json" -d '{
 }' "https://graph.facebook.com/{version}/me/messenger_profile?access_token={PAGE_ACCESS_TOKEN}"
 ```
 
-Go to the Facebook page you created for your chatbot and say hi!
+Go to the Facebook page you created for your chatbot and say hi or send a bus stop!
