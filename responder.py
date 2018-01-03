@@ -100,6 +100,26 @@ def get_help():
     return message_text
 
 
+def send_action(token, fb_url, recipient_id, action):
+    """Display sender action for the user"""
+    params = {
+        "access_token": token
+    }
+    headers = {
+        "Content-Type": "application/json"
+    }
+    data = json.dumps({
+        "recipient": {
+            "id": recipient_id
+        },
+        "sender_action": action
+    })
+    r = requests.post(fb_url, params=params, headers=headers, data=data)
+    if r.status_code != 200:
+        print(r.status_code)
+        print(r.text)
+
+
 def send_text(token, fb_url, recipient_id, message_text):
     """Send message back to the original sender"""
     params = {

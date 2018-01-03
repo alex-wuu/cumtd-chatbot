@@ -24,12 +24,14 @@ def generate_response(messaging_event):
     except KeyError:
         pass
     received_text = responder.check_text(messaging_event['message']['text'])
+    responder.send_action(PAGE_ACCESS_TOKEN, FB_URL, sender_id, 'mark_seen')
+    responder.send_action(PAGE_ACCESS_TOKEN, FB_URL, sender_id, 'typing_on')
     nlp_entity = responder.get_entity(messaging_event['message']['nlp']['entities'])
     if 'help' in received_text:
-        return sender_id, responder.get_help()
+        message_text = responder.get_help()
     elif nlp_entity != '':
         print('NLP entity found: {0}'.format(nlp_entity))
-        return sender_id, responder.entity_response(nlp_entity)
+        message_text = responder.entity_response(nlp_entity)
     else:
         remaining_time = botredis.check_user(REDIS_URL, sender_id)
         if remaining_time == 0:
@@ -44,7 +46,8 @@ def generate_response(messaging_event):
             departures = responder.get_departures(CUMTD_KEY, BASE_URL, stop_id)
             message_text = departures if type(departures) == str else responder.departures_text(stop_name, departures)
             botredis.update_departures(REDIS_URL, stop_id, message_text)
-        return sender_id, message_text
+    responder.send_action(PAGE_ACCESS_TOKEN, FB_URL, sender_id, 'typing_off')
+    return sender_id, message_text
 
 
 class handlerAPI(MethodView):
