@@ -23,11 +23,12 @@ def generate_response(messaging_event):
             return sender_id, responder.get_started()
     except KeyError:
         pass
-    received_text = messaging_event['message']['text']
+    received_text = responder.check_text(messaging_event['message']['text'])
     nlp_entity = responder.get_entity(messaging_event['message']['nlp']['entities'])
     if 'help' in received_text:
         return sender_id, responder.get_help()
     elif nlp_entity != '':
+        print('NLP entity found: {0}'.format(nlp_entity))
         return sender_id, responder.entity_response(nlp_entity)
     else:
         remaining_time = botredis.check_user(REDIS_URL, sender_id)

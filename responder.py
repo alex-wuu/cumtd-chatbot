@@ -1,7 +1,13 @@
 import iso8601
 import json
 import random
+import re
 import requests
+
+
+def check_text(received_text):
+    """Check the received text for bad things"""
+    return re.sub(r'\W+', ' ', received_text)
 
 
 def departures_text(stop_name, departures):
@@ -20,7 +26,7 @@ def departures_text(stop_name, departures):
 def entity_response(nlp_entity):
     """Create message text for greetings, thanks and bye NLP entities"""
     message_text = ''
-    bus_emoji = b' \xf0\x9f\x9a\x8c'.decode()
+    bus_emoji = b' \\U0001f68c'.decode('unicode-escape')
     if nlp_entity == 'greetings':
         message_text = random.choice(['Hi there!', 'Hi!', 'Hello!'])
     elif nlp_entity == 'thanks':
