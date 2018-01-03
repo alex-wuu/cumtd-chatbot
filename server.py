@@ -18,7 +18,14 @@ REDIS_URL = os.getenv('REDIS_URL')
 def generate_response(messaging_event):
     """Return the user's ID and response text"""
     sender_id = messaging_event['sender']['id']
+    try:
+        if messaging_event['postback']['payload'] == 'get_started':
+            return sender_id, responder.get_started()
+    except KeyError:
+        pass
     received_text = messaging_event['message']['text']
+    if 'help' in received_text:
+        return sender_id, responder.get_help()
     remaining_time = botredis.check_user(REDIS_URL, sender_id)
     if remaining_time == 0:
         stop_id, stop_name = responder.get_stop_id(CUMTD_KEY, BASE_URL, received_text)
@@ -61,8 +68,8 @@ class handlerAPI(MethodView):
                 try:
                     sender_id, message_text = generate_response(messaging_event)
                     print(message_text)
-                    responder.send_response(PAGE_ACCESS_TOKEN, FB_URL, sender_id, message_text)
-                except IndexError:
+                    responder.send_text(PAGE_ACCESS_TOKEN, FB_URL, sender_id, message_text)
+                except KeyError:
                     pass
         return 'ok', 200
 

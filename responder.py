@@ -16,6 +16,26 @@ def departures_text(stop_name, departures):
     return message_text
 
 
+def get_departures(key, base_url, stop_id):
+    """Get json of departures by stop_id"""
+    print('Finding departures for bus stop')
+    departures_url = base_url + '/{0}?key={1}&stop_id={2}'.format('getdeparturesbystop', key, stop_id)
+    r = requests.get(departures_url)
+    if r.status_code == 200:
+        return r.json()
+    else:
+        return "Can't get bus departures: Error {0}".format(r.status_code)
+
+
+def get_started():
+    """Create message when user clicks the get started button"""
+    message_text = ("Hi there! I can show you bus departures in the Champaign-"
+                    "Urbana area.\n\nJust send me a bus stop that you'd like to "
+                    "check! E.g. \"transit plaza\" or \"illini union\".\n\nType "
+                    "\"help\" if you want to see this example again.")
+    return message_text
+
+
 def get_stop_id(key, base_url, received_text):
     """Search based on received text, then returns the stop_id and stop_name of closest match"""
     print('Finding bus stops')
@@ -33,18 +53,16 @@ def get_stop_id(key, base_url, received_text):
         return '', "Can't find bus stops: Error {0}".format(r.status_code)
 
 
-def get_departures(key, base_url, stop_id):
-    """Get json of departures by stop_id"""
-    print('Finding departures for bus stop')
-    departures_url = base_url + '/{0}?key={1}&stop_id={2}'.format('getdeparturesbystop', key, stop_id)
-    r = requests.get(departures_url)
-    if r.status_code == 200:
-        return r.json()
-    else:
-        return "Can't get bus departures: Error {0}".format(r.status_code)
+def get_help():
+    """Return help text when user types help"""
+    message_text = ("Only bus stop departures are currently supported.\n\n"
+                    "Type a bus stop e.g. \"transit plaza\" or "
+                    "\"illini union\" without quotes.")
+    # Add feedback line
+    return message_text
 
 
-def send_response(token, fb_url, recipient_id, message_text):
+def send_text(token, fb_url, recipient_id, message_text):
     """Send message back to the original sender"""
     params = {
         "access_token": token
@@ -53,6 +71,7 @@ def send_response(token, fb_url, recipient_id, message_text):
         "Content-Type": "application/json"
     }
     data = json.dumps({
+        "messaging_type": "RESPONSE",
         "recipient": {
             "id": recipient_id
         },
