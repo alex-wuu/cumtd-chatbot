@@ -39,8 +39,11 @@ def entity_response(nlp_entity):
 def get_departures(key, base_url, stop_id):
     """Get json of departures by stop_id"""
     print('Finding departures for bus stop')
-    departures_url = base_url + '/{0}?key={1}&stop_id={2}'.format('getdeparturesbystop', key, stop_id)
-    r = requests.get(departures_url)
+    params = {
+        "key": key,
+        "stop_id": stop_id
+    }
+    r = requests.get(base_url + '/getdeparturesbystop', params=params)
     if r.status_code == 200:
         return r.json()
     else:
@@ -71,8 +74,11 @@ def get_started():
 def get_stop_id(key, base_url, received_text):
     """Search based on received text, then returns the stop_id and stop_name of closest match"""
     print('Finding bus stops for {0}'.format(received_text))
-    stop_id_url = base_url + '/{0}?key={1}&query={2}'.format('getstopsbysearch', key, received_text)
-    r = requests.get(stop_id_url)
+    params = {
+        "key": key,
+        "query": received_text
+    }
+    r = requests.get(base_url + '/getstopsbysearch', params=params)
     if r.status_code == 200:
         match_ids = r.json()
         try:
