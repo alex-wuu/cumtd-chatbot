@@ -24,22 +24,26 @@ def generate_response(messaging_event):
     except KeyError:
         pass
     received_text = messaging_event['message']['text']
+    nlp_entity = responder.get_entity(messaging_event['message']['nlp']['entities'])
     if 'help' in received_text:
         return sender_id, responder.get_help()
-    remaining_time = botredis.check_user(REDIS_URL, sender_id)
-    if remaining_time == 0:
-        stop_id, stop_name = responder.get_stop_id(CUMTD_KEY, BASE_URL, received_text)
-        if stop_id != '':
-            message_text = botredis.check_departures(REDIS_URL, stop_id)
-        else:
-            message_text = stop_name
+    elif nlp_entity != '':
+        return sender_id, responder.entity_response(nlp_entity)
     else:
-        message_text = 'Request limit reached! Try again in {0} seconds.'.format(remaining_time)
-    if message_text is False:
-        departures = responder.get_departures(CUMTD_KEY, BASE_URL, stop_id)
-        message_text = departures if type(departures) == str else responder.departures_text(stop_name, departures)
-        botredis.update_departures(REDIS_URL, stop_id, message_text)
-    return sender_id, message_text
+        remaining_time = botredis.check_user(REDIS_URL, sender_id)
+        if remaining_time == 0:
+            stop_id, stop_name = responder.get_stop_id(CUMTD_KEY, BASE_URL, received_text)
+            if stop_id != '':
+                message_text = botredis.check_departures(REDIS_URL, stop_id)
+            else:
+                message_text = stop_name
+        else:
+            message_text = 'Request limit reached! Try again in {0} seconds.'.format(remaining_time)
+        if message_text is False:
+            departures = responder.get_departures(CUMTD_KEY, BASE_URL, stop_id)
+            message_text = departures if type(departures) == str else responder.departures_text(stop_name, departures)
+            botredis.update_departures(REDIS_URL, stop_id, message_text)
+        return sender_id, message_text
 
 
 class handlerAPI(MethodView):
