@@ -29,8 +29,9 @@ def check_departures(redis_url, stop_id):
     print('Checking redis for stop_id {0}'.format(stop_id))
     r = redis.from_url(redis_url)
     cur_time = int(r.time()[0])
+    cur_min = cur_time - (cur_time % 60)
     if r.exists(stop_id):
-        if abs(cur_time - int(r.lindex(stop_id, 0))) < 60:
+        if cur_min == int(r.lindex(stop_id, 0)):
             print('Already up-to-date')
             message_text = r.lindex(stop_id, 1)
             return message_text.decode(encoding='utf-8')
@@ -58,8 +59,9 @@ def update_departures(redis_url, stop_id, message_text):
     print('Setting redis key')
     r = redis.from_url(redis_url)
     cur_time = int(r.time()[0])
+    cur_min = cur_time - (cur_time % 60)
     if r.exists(stop_id):
-        r.lset(stop_id, 0, cur_time)
+        r.lset(stop_id, 0, cur_min)
         r.lset(stop_id, 1, message_text)
     else:
-        r.lpush(stop_id, message_text, cur_time)
+        r.lpush(stop_id, message_text, cur_min)
