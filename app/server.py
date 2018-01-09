@@ -23,11 +23,26 @@ def generate_response(messaging_event):
             return sender_id, responder.get_started()
     except KeyError:
         pass
+    try:
+        lat = messaging_event['message']['attachments'][0]['payload']['coordinates']['lat']
+        lon = messaging_event['message']['attachments'][0]['payload']['coordinates']['long']
+        remaining_time = botredis.check_user(REDIS_URL, sender_id)
+        if remaining_time == 0:
+            nearby_stops = responder.get_nearby_stops(CUMTD_KEY, BASE_URL, lat, lon)
+            message_text = responder.nearby_stops_text(nearby_stops)
+        else:
+            message_text = 'Request limit reached! Try again in {0} seconds.'.format(remaining_time)
+        return sender_id, message_text
+    except KeyError:
+        pass
+    # Add try block for sending nearby stops
     received_text = responder.check_text(messaging_event['message']['text'])
     responder.send_action(PAGE_ACCESS_TOKEN, FB_URL, sender_id, 'mark_seen')
     responder.send_action(PAGE_ACCESS_TOKEN, FB_URL, sender_id, 'typing_on')
     nlp_entity = responder.get_entity(messaging_event['message']['nlp']['entities'])
-    if 'help' in received_text:
+    if any(x in received_text for x in ['near', 'close']):
+        message_text = 'location_request'
+    elif 'help' in received_text:
         message_text = responder.get_help()
     elif nlp_entity != '':
         print('NLP entity found: {0}'.format(nlp_entity))
@@ -75,8 +90,11 @@ class handlerAPI(MethodView):
             for messaging_event in entry['messaging']:
                 try:
                     sender_id, message_text = generate_response(messaging_event)
-                    print(message_text)
-                    responder.send_text(PAGE_ACCESS_TOKEN, FB_URL, sender_id, message_text)
+                    if message_text != 'location_request':
+                        print(message_text)
+                        responder.send_text(PAGE_ACCESS_TOKEN, FB_URL, sender_id, message_text)
+                    else:
+                        responder.send_location_button(PAGE_ACCESS_TOKEN, FB_URL, sender_id)
                 except KeyError:
                     pass
         return 'ok', 200
