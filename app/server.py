@@ -13,6 +13,7 @@ CUMTD_KEY = os.getenv('CUMTD_KEY')
 FB_URL = os.getenv('FB_URL')
 BASE_URL = os.getenv('BASE_URL')
 REDIS_URL = os.getenv('REDIS_URL')
+CUSTOM_STOPS = os.getenv('CUSTOM_STOPS')
 
 
 def generate_response(messaging_event):
@@ -50,6 +51,8 @@ def generate_response(messaging_event):
     else:
         remaining_time = botredis.check_user(REDIS_URL, sender_id)
         if remaining_time == 0:
+            custom_stop = responder.check_custom_stop(CUSTOM_STOPS, received_text)
+            received_text = custom_stop if custom_stop != '' else received_text
             stop_id, stop_name = responder.get_stop_id(CUMTD_KEY, BASE_URL, received_text)
             if stop_id != '':
                 message_text = botredis.check_departures(REDIS_URL, stop_id)
