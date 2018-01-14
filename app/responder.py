@@ -66,7 +66,7 @@ def get_entity(nlp_entities):
     max_confidence = 0
     for entity in nlp_entities:
         confidence = nlp_entities[entity][0]['confidence']
-        if entity in ['greetings', 'thanks', 'bye'] and confidence > 0.6 and confidence > max_confidence:
+        if entity in ['greetings', 'thanks', 'bye'] and confidence > 0.7 and confidence > max_confidence:
             max_entity = entity
             max_confidence = confidence
     return max_entity
