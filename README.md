@@ -43,6 +43,7 @@ Add environment variables. This can be done through your platform, e.g. Heroku, 
 - ```FB_URL``` is used as a starting point for requests with the [Facebook graph API](https://developers.facebook.com/docs/messenger-platform/send-messages/), e.g. ```https://graph.facebook.com/v2.11/me/messages```.
 - ```BASE_URL``` is used as a starting point for [requests with the CUMTD API](https://developer.cumtd.com/documentation/v2.2/requests/) with the format ```https://developer.cumtd.com/api/{version}/{format}/{method}?key={api_key}```.
 - ```REDIS_URL``` is your Redis URL.
+- ```CUSTOM_STOPS``` string containing user defined custom stops in a dictionary format. This is used to account for common bus stop acronyms/nicknames that aren't caught by the CUMTD API.
 
 Set up your Redis. The Heroku redis addon was used for creating the app.
 
