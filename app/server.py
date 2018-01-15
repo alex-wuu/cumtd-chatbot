@@ -19,11 +19,13 @@ CUSTOM_STOPS = os.getenv('CUSTOM_STOPS')
 def generate_response(messaging_event):
     """Return the user's ID and response text"""
     sender_id = messaging_event['sender']['id']
+    # Try block to check if user pressed get_started
     try:
         if messaging_event['postback']['payload'] == 'get_started':
             return sender_id, responder.get_started()
     except KeyError:
         pass
+    # Try block to check if user sent their location to find nearby stops
     try:
         lat = messaging_event['message']['attachments'][0]['payload']['coordinates']['lat']
         lon = messaging_event['message']['attachments'][0]['payload']['coordinates']['long']
@@ -36,30 +38,34 @@ def generate_response(messaging_event):
         return sender_id, message_text
     except KeyError:
         pass
-    # Add try block for sending nearby stops
     received_text = responder.check_text(messaging_event['message']['text'])
+    # Bot actions for showing that message was seen, and bot is typing the message
     responder.send_action(PAGE_ACCESS_TOKEN, FB_URL, sender_id, 'mark_seen')
     responder.send_action(PAGE_ACCESS_TOKEN, FB_URL, sender_id, 'typing_on')
+    # Get NLP entities if confidence is high enough
     nlp_entity = responder.get_entity(messaging_event['message']['nlp']['entities'])
+    # Check for custom stops
+    custom_stop = responder.check_custom_stop(CUSTOM_STOPS, received_text)
+    received_text = custom_stop if custom_stop != '' else received_text
     if any(x in received_text for x in ['near', 'close']):
-        message_text = 'location_request'
+        message_text = 'location_request'  # if user asked for nearby stops
     elif 'help' in received_text:
-        message_text = responder.get_help()
-    elif nlp_entity != '':
+        message_text = responder.get_help()  # if user asked for help
+    elif nlp_entity != '' and custom_stop == '':  # if greeting, thanks or bye NLP entities are found
         print('NLP entity found: {0}'.format(nlp_entity))
         message_text = responder.entity_response(nlp_entity)
-    else:
+    else:  # otherwise, search for a bus stop
+        # Check number of user requests in the last minute
         remaining_time = botredis.check_user(REDIS_URL, sender_id)
         if remaining_time == 0:
-            custom_stop = responder.check_custom_stop(CUSTOM_STOPS, received_text)
-            received_text = custom_stop if custom_stop != '' else received_text
             stop_id, stop_name = responder.get_stop_id(CUMTD_KEY, BASE_URL, received_text)
             if stop_id != '':
                 message_text = botredis.check_departures(REDIS_URL, stop_id)
             else:
-                message_text = stop_name
+                message_text = stop_name  # stop_name contains the error message if a stop_id not found
         else:
             message_text = 'Request limit reached! Try again in {0} seconds.'.format(remaining_time)
+        # message_text is False only if the redis needs to be updated for the requested stop_id
         if message_text is False:
             departures = responder.get_departures(CUMTD_KEY, BASE_URL, stop_id)
             message_text = departures if type(departures) == str else responder.departures_text(stop_name, departures)
