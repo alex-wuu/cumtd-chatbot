@@ -12,8 +12,8 @@ The provided procfile is used for deployment using Heroku. These instructions as
 ### Installation Instructions
 Clone the repository inside your current directory:
 ```
-$ git clone https://github.com/alex-wuu/cumtd-chatbot.git ./cumtd-chatbot
-$ cd ./cumtd-chatbot
+$ git clone https://github.com/alex-wuu/cumtd-chatbot.git cumtd-chatbot
+$ cd cumtd-chatbot
 ```
 
 Install virtualenv if you don't have it:
@@ -28,12 +28,12 @@ $ virtualenv venv
 
 Activate your virtual environment:
 ```
-$ source ./venv/bin/activate
+$ source venv/bin/activate
 ```
 
 Install package dependencies with pip:
 ```
-$ pip install -r ./app/requirements.txt
+$ pip install -r app/requirements.txt
 ```
 
 Add environment variables. This can be done through your platform, e.g. Heroku, or through an additional config file. If you use a config file, then it needs to be imported in `server.py`.
