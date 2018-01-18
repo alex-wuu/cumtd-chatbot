@@ -38,7 +38,7 @@ def generate_response(messaging_event):
         return sender_id, message_text
     except KeyError:
         pass
-    received_text = responder.check_text(messaging_event['message']['text'])
+    received_text = responder.check_text(messaging_event['message']['text']).lower()
     # Bot actions for showing that message was seen, and bot is typing the message
     responder.send_action(PAGE_ACCESS_TOKEN, FB_URL, sender_id, 'mark_seen')
     responder.send_action(PAGE_ACCESS_TOKEN, FB_URL, sender_id, 'typing_on')

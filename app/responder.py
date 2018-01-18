@@ -10,8 +10,8 @@ def check_custom_stop(custom_stops, received_text):
     """Check for defined custom stops based on received text"""
     d = ast.literal_eval(custom_stops)
     for word in received_text.split():
-        if word.lower() in d:
-            return d[word.lower()]
+        if word in d:
+            return d[word]
     return ''
 
 
