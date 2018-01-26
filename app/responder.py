@@ -107,8 +107,18 @@ def get_stop_id(key, base_url, received_text):
     if r.status_code == 200:
         match_ids = r.json()
         try:
-            stop_id = match_ids['stops'][0]['stop_id']
-            stop_name = match_ids['stops'][0]['stop_name']
+            index = 0
+            while index < 10:
+                stop_id = match_ids['stops'][index]['stop_id']
+                stop_name = match_ids['stops'][index]['stop_name']
+                count = 0
+                for letter in stop_id:
+                    if letter in received_text:
+                        count += 1
+                if count / len(stop_id) < 0.5:
+                    index += 1
+                else:
+                    break
             return stop_id, stop_name
         except IndexError:
             return '', "Can't find a matching bus stop :("
