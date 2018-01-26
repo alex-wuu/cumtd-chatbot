@@ -111,14 +111,14 @@ def get_stop_id(key, base_url, received_text):
             while index < 10:
                 stop_id = match_ids['stops'][index]['stop_id']
                 stop_name = match_ids['stops'][index]['stop_name']
-                count = 0
+                count = 0  # counts the number of letters in stop_id that are in received_text
                 for letter in stop_id:
-                    if letter in received_text:
+                    if letter.lower() in received_text:
                         count += 1
                 if count / len(stop_id) < 0.5:
-                    index += 1
+                    index += 1  # go to the next searched stop
                 else:
-                    break
+                    break  # break out of loop to return current stop
             return stop_id, stop_name
         except IndexError:
             return '', "Can't find a matching bus stop :("
