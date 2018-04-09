@@ -1,6 +1,4 @@
 from flask import Flask, request
-from flask.views import MethodView
-
 import os
 import botredis
 import responder
