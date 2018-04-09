@@ -25,7 +25,9 @@ def check_user(redis_url, sender_id):
 
 
 def check_departures(redis_url, stop_id):
+
     """Return previous text if last update was less than a minute ago"""
+
     print('Checking redis for stop_id {0}'.format(stop_id))
     r = redis.from_url(redis_url)
     cur_time = int(r.time()[0])
@@ -39,7 +41,9 @@ def check_departures(redis_url, stop_id):
 
 
 def flush_redis(redis_url):
+
     """Flush redis from the first call of each day after 6 AM CST"""
+
     r = redis.from_url(redis_url)
     cur_time = int(r.time()[0]) - 43200  # sets to 12PM UTC (6AM CST)
     cur_day = cur_time - (cur_time % 86400)
@@ -55,7 +59,9 @@ def flush_redis(redis_url):
 
 
 def update_departures(redis_url, stop_id, message_text):
+
     """Update departures in the redis"""
+    
     print('Setting redis key')
     r = redis.from_url(redis_url)
     cur_time = int(r.time()[0])

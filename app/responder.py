@@ -7,7 +7,9 @@ import requests
 
 
 def check_custom_stop(custom_stops, received_text):
+
     """Check for defined custom stops based on received text"""
+
     d = ast.literal_eval(custom_stops)
     for word in received_text.split():
         if word in d:
@@ -15,13 +17,41 @@ def check_custom_stop(custom_stops, received_text):
     return ''
 
 
-def check_text(received_text):
-    """Check the received text for bad things"""
+def check_alphanumeric(received_text):
+
+    """Replace non-alphanumeric characters with spaces"""
+
     return re.sub(r'\W+', ' ', received_text)
+
+def check_ordinal(received_text):
+
+    """Replace ordinal numbers with full letter representation"""
+
+    ordinals = {
+        '1st': 'first', 
+        '2nd': 'second',
+        '3rd': 'third', 
+        '4th': 'fourth',
+        '5th': 'fifth',
+        '6th': 'sixth',
+        '7th': 'seventh', 
+        '8th': 'eighth',
+        '9th': 'ninth'
+    }
+
+    new_text = []
+    for word in received_text.split():
+        if word in ordinals:
+            new_text.append(ordinals[word])
+        else:
+            new_text.append(word)
+    return ' '.join(new_text)
 
 
 def departures_text(stop_name, departures):
+
     """Create message text containing bus departure times for a stop"""
+
     print('Creating message with bus departures')
     cur_time = iso8601.parse_date(departures['time'])
     message_text = '{0} departures at {1}\n'.format(stop_name, cur_time.strftime('%I:%M %p'))
@@ -34,7 +64,9 @@ def departures_text(stop_name, departures):
 
 
 def entity_response(nlp_entity):
+
     """Create message text for greetings, thanks and bye NLP entities"""
+
     message_text = ''
     bus_emoji = b' \\U0001f68c'.decode('unicode-escape')
     if nlp_entity == 'greetings':
@@ -47,7 +79,9 @@ def entity_response(nlp_entity):
 
 
 def get_departures(key, base_url, stop_id):
+
     """Get json of departures by stop_id"""
+
     print('Finding departures for bus stop')
     params = {
         "key": key,
@@ -61,7 +95,9 @@ def get_departures(key, base_url, stop_id):
 
 
 def get_entity(nlp_entities):
+
     """Return max confidence NLP entity over 0.6"""
+
     max_entity = ''
     max_confidence = 0
     for entity in nlp_entities:
@@ -73,6 +109,9 @@ def get_entity(nlp_entities):
 
 
 def get_nearby_stops(key, base_url, latitude, longitude):
+
+    """Sends request to get the nearest 5 bus stops"""
+
     print('Finding nearby bus stops')
     params = {
         "key": key,
@@ -88,7 +127,9 @@ def get_nearby_stops(key, base_url, latitude, longitude):
 
 
 def get_started():
+
     """Create message when user clicks the get started button"""
+
     message_text = ("Hi there! I can show you bus departures in the Champaign-"
                     "Urbana area.\n\nJust send me a bus stop that you'd like to "
                     "check! E.g. \"transit plaza\" or \"illini union\"\n\nType "
@@ -97,7 +138,9 @@ def get_started():
 
 
 def get_stop_id(key, base_url, received_text):
+
     """Search based on received text, then returns the stop_id and stop_name of closest match"""
+
     print('Finding bus stops for {0}'.format(received_text))
     params = {
         "key": key,
@@ -127,7 +170,9 @@ def get_stop_id(key, base_url, received_text):
 
 
 def get_help():
+
     """Return help text when user types help"""
+
     message_text = ("Bus stop departures and nearby stops are currently supported.\n\n"
                     "Type a bus stop e.g. \"transit plaza\" or "
                     "\"illini union\"\n\n"
@@ -137,6 +182,9 @@ def get_help():
 
 
 def nearby_stops_text(nearby_stops):
+
+    """Creates the message with nearby stops"""
+
     print('Creating message with nearby stops')
     message_text = 'Nearby bus stops:\n'
     for stop in nearby_stops['stops']:
@@ -147,7 +195,9 @@ def nearby_stops_text(nearby_stops):
 
 
 def send_action(token, fb_url, recipient_id, action):
+
     """Display sender action for the user"""
+
     params = {
         "access_token": token
     }
@@ -167,7 +217,9 @@ def send_action(token, fb_url, recipient_id, action):
 
 
 def send_location_button(token, fb_url, recipient_id):
+
     """Ask the user for their location"""
+
     params = {
         "access_token": token
     }
@@ -194,7 +246,9 @@ def send_location_button(token, fb_url, recipient_id):
 
 
 def send_text(token, fb_url, recipient_id, message_text):
+
     """Send message back to the original sender"""
+
     params = {
         "access_token": token
     }
