@@ -52,7 +52,11 @@ def generate_response(messaging_event):
     responder.send_action(PAGE_ACCESS_TOKEN, FB_URL, sender_id, 'typing_on')
 
     # Get NLP entities if confidence is high enough
-    nlp_entity = responder.get_entity(messaging_event['message']['nlp']['entities'])
+    nlp_entity = ''
+    try:
+        nlp_entity = responder.get_entity(messaging_event['message']['nlp']['entities'])
+    except KeyError:
+        pass
 
     # Check for custom stops
     custom_stop = responder.check_custom_stop(CUSTOM_STOPS, received_text)
